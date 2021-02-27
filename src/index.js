@@ -137,7 +137,7 @@ const mkChart = async (params) => {
         labels: {
           fontColor: last < first ? '#ff413d' : 'blue',
           opacity: 1,
-          fontSize: 14,
+          fontSize: +params.width < 500 ? 8 : 14,
           boxWidth: 0,
         },
       },
