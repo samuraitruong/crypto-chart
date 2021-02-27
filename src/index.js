@@ -3,6 +3,7 @@ const { ChartJSNodeCanvas } = require('chartjs-node-canvas');
 let app = express();
 const moment = require('moment-timezone');
 const { default: axios } = require('axios');
+
 async function getData(url, retry = 0) {
   try {
     const { data } = await axios.get(url);
@@ -13,15 +14,23 @@ async function getData(url, retry = 0) {
     }
   }
 }
+
 const serviceInstance = {};
 const mkChart = async (params) => {
   const duration = +params.period || 7;
+  let fixedStartTime;
+  if (params.period?.includes('/')) {
+    const fixedDate = moment
+      .tz(params.period, 'DD/MM HH:mm a', 'Australia/Melbourne')
+      .toDate();
+    fixedStartTime = fixedDate.getTime();
+  }
   const now = moment.tz('Australia/Melbourne');
   const nowTs = now.toDate().getTime();
   const startTime = now.add(-duration, 'days').toDate().getTime();
   const url = `https://www.coinspot.com.au/charts/history_basic?symbol=${(
     params.coin || 'ADA'
-  ).toUpperCase()}&from=${startTime}&to=${nowTs}`;
+  ).toUpperCase()}&from=${fixedStartTime || startTime}&to=${nowTs}`;
 
   const data = await getData(url);
   const first = data[0][1];
@@ -54,7 +63,7 @@ const mkChart = async (params) => {
           {
             type: 'time',
             distribution: 'series',
-            offset: true,
+            offset: false,
             gridLines: {
               display: false,
             },
@@ -65,7 +74,7 @@ const mkChart = async (params) => {
                 fontStyle: 'bold',
               },
               source: 'data',
-              autoSkip: true,
+              autoSkip: false,
               autoSkipPadding: 75,
               maxRotation: 0,
               sampleSize: 100,
