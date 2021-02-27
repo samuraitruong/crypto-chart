@@ -35,13 +35,18 @@ const mkChart = async (params) => {
   const data = await getData(url);
   const first = data[0][1];
   const last = data[data.length - 1][1];
-  const percentageChange = (((last - first) * 100) / first).toFixed(2) + '%';
+  let percentageChange = (((last - first) * 100) / first).toFixed(2) + '%';
+  if (!percentageChange.includes('-'))
+    percentageChange = '+' + percentageChange;
+  const label = `From ${moment(new Date(fixedStartTime || startTime)).format(
+    'DD MMM',
+  )}(${percentageChange})`;
   const configuration = {
     type: 'line',
     data: {
       datasets: [
         {
-          label: percentageChange,
+          label,
           labelColor: '#fee',
           backgroundColor: '#ffffff', //color(window.chartColors.red).alpha(0.5).rgbString(),
           borderColor: last < first ? '#ff413d' : '#21CE99',
@@ -128,10 +133,12 @@ const mkChart = async (params) => {
         ],
       },
       legend: {
-        display: false,
+        display: true,
         labels: {
-          fontColor: last < first ? '#ff413d' : '#21CE99',
+          fontColor: last < first ? '#ff413d' : 'blue',
+          opacity: 1,
           fontSize: 14,
+          boxWidth: 0,
         },
       },
     },
