@@ -133,7 +133,7 @@ const mkChart = async (params) => {
         ],
       },
       legend: {
-        display: true,
+        display: false,
         labels: {
           fontColor: last < first ? '#ff413d' : '#006400',
           opacity: 1,
